@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,9 @@ public class Main {
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";    //credenciales para utilización de las API de google
+    private static int filaEncabezadosPago = 2;
 
+    
     //Se crea un objeto credencial
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         //Se cargan los usuarios que pueden acceder
@@ -58,10 +61,9 @@ public class Main {
     
     public static void main(String... args) throws IOException, GeneralSecurityException {
         //Se genera una nueva API de Servicio de Cliente Autorizado
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();        
         final String spreadsheetId = "1E_L6e4wwq7Rew0yaCIzy3pWsaFWkc2q26sUIqLLT5jc";    //id de la hoja de cálculo a la que se accederá
-        final String range = "Hoja 1!B1:H3";                          //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
+        final String range = "Hoja 1!A1:I8";                          //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
         
         //Servicio solicitado
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
@@ -76,24 +78,41 @@ public class Main {
         
                 
         
-        //DataFormatter contiene métodos para formatear el valor almacenado en una celda
-        DataFormatter formatter = new DataFormatter();
-        int columnaEncabezado = 0;
         
-        for (List row : values) {            
-            for (int i = 0; i < row.size(); i++) {
-                String cellActual = row.get(i).toString();
-                if (cellActual.equals("Pago")) {
-                    System.out.println("yes");
-                }
+        List row = values.get(filaEncabezadosPago);     //obtengo la fila de encabezados
+        List<Integer> columnasPago = new ArrayList<>();
+        int cantCeldas = row.size();
+        
+        //listar las columnas de pago
+        for (int i = 0; i < cantCeldas; i++) {
+            //se verifica que sea la columna de pagos y de serlo se agrega a la lista
+            if (row.get(i).equals("Pago")) {
+                columnasPago.add(i);
             }
         }
         
-        /*if (values == null || values.isEmpty()) {
-            System.out.println("No data found.");
-        } else {
-            System.out.println("Name, Major");
-            
-        }*/
+        System.out.println("LISTA DE DEUDORES:");
+        
+        //verificar que haya cumplido el pago de todos los meses
+        //i es fila actual y j columna actual
+        for (int i = filaEncabezadosPago +1; i < 8; i++) {
+            System.out.println("_______________________________");
+            row = values.get(i);
+            //completo las celdas que no se cargaron
+            int faltantes = cantCeldas - row.size();
+            for (int k = 0; k < faltantes; k++) {
+                row.add("");
+            }
+                        
+            if (row.isEmpty()) {
+                break;
+            } else {
+                for (int j : columnasPago) {
+                    if (row.get(j).equals("")) {
+                        System.out.printf("%s debe el mes de %s %n", row.get(0), values.get(0).get(j));
+                    }
+                }
+            }
+        }
     }
 }

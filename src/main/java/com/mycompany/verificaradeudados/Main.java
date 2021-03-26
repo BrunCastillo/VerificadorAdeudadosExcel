@@ -27,8 +27,8 @@ public class Main {
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";    //credenciales para utilización de las API de google
-    private static int filaEncabezadosPago = 2;
+    private static final String CREDENTIALS_FILE_PATH = "/resources/credentials.json";    //credenciales para utilización de las API de google
+    private static int filaEncabezadosImporte = 2;
     private static String inicioLecturaExcel = "A1";
     private static String finLecturaExcel = "U43";
 
@@ -55,11 +55,11 @@ public class Main {
     
     
     
-    public static void main(String... args) throws IOException, GeneralSecurityException {
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
         //Se genera una nueva API de Servicio de Cliente Autorizado
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();        
         final String spreadsheetId = "1W8e8Htrdu794btBcClvykUQn9vkjqqOx8ZdceMtp7EA";    //id de la hoja de cálculo a la que se accederá
-        final String range = "Seguimiento de clientes !" + inicioLecturaExcel + ":" + finLecturaExcel;                          //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
+        final String range = "Seguimiento de clientes !" + inicioLecturaExcel + ":" + finLecturaExcel;  //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
         
         //Servicio solicitado
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
@@ -72,10 +72,10 @@ public class Main {
         //Se listan las respuestas para trabajarlas individualmente
         List<List<Object>> values = response.getValues();
         
-               
+              
         
         VentanaPrincipal ventanaPrinc = new VentanaPrincipal();
-        ventanaPrinc.filaEncabezadosPago = filaEncabezadosPago;
+        ventanaPrinc.filaEncabezadosImporte = filaEncabezadosImporte;
         ventanaPrinc.values = values;
         ventanaPrinc.setVisible(true);
         ventanaPrinc.setLocationRelativeTo(null);

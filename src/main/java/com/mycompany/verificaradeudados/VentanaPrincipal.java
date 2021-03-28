@@ -1,16 +1,21 @@
 package com.mycompany.verificaradeudados;
 
 
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.model.ValueRange;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class VentanaPrincipal extends javax.swing.JFrame {
-    List<List<Object>> values;    
+    public static Sheets service;
     int filaEncabezadosImporte;
     List row;    
-    int cantCeldas;    
-    int cantFilas = 43;
+    int cantCeldas;
     
     
     public VentanaPrincipal() {
@@ -140,6 +145,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonVerificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonVerificarActionPerformed
+        String inicioLecturaExcel = "A1";
+        int cantFilas = Integer.valueOf(inputUltFila.getText());
+        String ultColumna = inputUltFila.getText().toUpperCase();
+        String finLecturaExcel = ultColumna.concat(inputUltFila.getText());
+        
+        //obtengo los valores de la hoja de cálculo
+        List<List<Object>> values = null;
+        try {
+            values = getValues(inicioLecturaExcel, finLecturaExcel);
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         //se crea un array con todas las columnas de importe a examinar en cada fila
         List<Integer> columnasImporte = new ArrayList<Integer>();
         row = values.get(filaEncabezadosImporte);       
@@ -168,7 +186,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 row.add("");
             }
                     
-            if (row.isEmpty()) {
+            if (row.isEmpty()) {                
                 break;
             } else {
                 for (int j : columnasImporte) {  
@@ -182,14 +200,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         
         txtArea.setText(texto);
     }//GEN-LAST:event_buttonVerificarActionPerformed
-
-    public static void main(String args[]) {
+    
+    public static List<List<Object>> getValues(String inicioLecturaExcel, String finLecturaExcel) throws IOException{
+        final String spreadsheetId = "1W8e8Htrdu794btBcClvykUQn9vkjqqOx8ZdceMtp7EA";    //id de la hoja de cálculo a la que se accederá
+        final String range = "Seguimiento de clientes !" + inicioLecturaExcel + ":" + finLecturaExcel;  //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
         
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new VentanaPrincipal().setVisible(true);
-            }
-        });
+        //Respuesta concedida
+        ValueRange response = service.spreadsheets().values()
+                .get(spreadsheetId, range)
+                .execute();
+        //Se listan las respuestas para trabajarlas individualmente
+        List<List<Object>> values = response.getValues();
+        
+        return values;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

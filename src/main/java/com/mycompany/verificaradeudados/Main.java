@@ -12,7 +12,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,8 +28,6 @@ public class Main {
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/resources/credentials.json";    //credenciales para utilización de las API de google
     private static int filaEncabezadosImporte = 2;
-    private static String inicioLecturaExcel = "A1";
-    private static String finLecturaExcel = "U43";
 
     
     //Se crea un objeto credencial
@@ -58,25 +55,17 @@ public class Main {
     public static void main(String[] args) throws IOException, GeneralSecurityException {
         //Se genera una nueva API de Servicio de Cliente Autorizado
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();        
-        final String spreadsheetId = "1W8e8Htrdu794btBcClvykUQn9vkjqqOx8ZdceMtp7EA";    //id de la hoja de cálculo a la que se accederá
-        final String range = "Seguimiento de clientes !" + inicioLecturaExcel + ":" + finLecturaExcel;  //Nombre de hoja e indicativo de inicio y fin de las celdas a las que se accederá
         
         //Servicio solicitado
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-        //Respuesta concedida
-        ValueRange response = service.spreadsheets().values()
-                .get(spreadsheetId, range)
-                .execute();
-        //Se listan las respuestas para trabajarlas individualmente
-        List<List<Object>> values = response.getValues();
         
               
         
         VentanaPrincipal ventanaPrinc = new VentanaPrincipal();
         ventanaPrinc.filaEncabezadosImporte = filaEncabezadosImporte;
-        ventanaPrinc.values = values;
+        ventanaPrinc.service = service;
         ventanaPrinc.setVisible(true);
         ventanaPrinc.setLocationRelativeTo(null);
     }

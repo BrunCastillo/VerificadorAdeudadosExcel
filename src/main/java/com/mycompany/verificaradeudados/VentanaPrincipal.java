@@ -9,8 +9,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     List<List<Object>> values;    
     int filaEncabezadosImporte;
     List row;    
-    int cantCeldas;
-    List<Integer> columnasImporte = new ArrayList<Integer>();
+    int cantCeldas;    
     int cantFilas = 43;
     
     
@@ -141,9 +140,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonVerificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonVerificarActionPerformed
-        row = values.get(filaEncabezadosImporte);
-        cantCeldas = row.size();
-        
+        //se crea un array con todas las columnas de importe a examinar en cada fila
+        List<Integer> columnasImporte = new ArrayList<Integer>();
+        row = values.get(filaEncabezadosImporte);       
+        cantCeldas = row.size();        
         for (int k = 0; k < cantCeldas; k++) {
             if (row.get(k).equals("Importe")) {
                 columnasImporte.add(k);
